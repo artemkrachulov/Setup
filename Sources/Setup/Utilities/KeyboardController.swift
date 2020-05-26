@@ -56,16 +56,22 @@ public final class KeyboardController {
 	private lazy var keyboardShowBlock: (Notification) -> Void = { [weak self] notification in
 		guard let delegate = self?.delegate else { return }
 		guard let notificationInfo = notification.userInfo,
-			let keyboardSize = (notificationInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
+			let keyboard = (notificationInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
 			let animationDuration = (notificationInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {
 			return
 		}
 
+        var keyboardSize = keyboard.size
+        if #available(iOS 11.0, *) {
+            let bottomInset = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0.0
+            keyboardSize.height -= bottomInset
+        }
+        
 		// Reduce text view's frame to fit the keyboard.
 		// UIKeyboardAnimationCurveUserInfoKey doesn't return with 7 a valid curve so we use as a workaround a hard coded.
 		let animationCurveOptions = UIView.AnimationOptions.curveEaseOut
 		UIView.animate(withDuration: animationDuration, delay: 0, options: animationCurveOptions, animations: {
-			delegate.keyboardShows(keyboardSize: keyboardSize.size)
+			delegate.keyboardShows(keyboardSize: keyboardSize)
 		}, completion: { _ in
 			delegate.keyboardShown()
 		})
