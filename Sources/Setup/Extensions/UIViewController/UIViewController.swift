@@ -1,6 +1,32 @@
 import UIKit
 
 extension UIViewController {
+    
+    /**
+     Adds a sub-controller to the hierarchy of this controller.
+     
+     Calls `willMove` and `didMove` on the sub-controller and adds it as a child.
+     While embedding the `viewEmbedding` closure is called which is responsible for adding the
+     controller's view as subview to the view hierarchy and applying any constraints if necessary.
+     
+     - parameter viewController: The parent controller
+     - parameter embedView: The closure which has to add the sub-controller's view to the view hierarchy.
+     */
+    public func addAsChild(to viewController: UIViewController?, embedView: (UIView) -> Void) -> Self {
+        
+        guard let viewController = viewController else { return self }
+        
+        willMove(toParent: viewController)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        embedView(view)
+        
+        viewController.addChild(self)
+        didMove(toParent: viewController)
+        
+        return self
+    }
+    
     /**
      Adds a sub-controller to the hierarchy of this controller.
      
@@ -51,6 +77,7 @@ extension UIViewController {
         willMove(toParent: nil)
         view.removeFromSuperview()
         removeFromParent()
+        didMove(toParent: nil)
     }
     
     /**
