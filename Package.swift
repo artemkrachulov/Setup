@@ -13,15 +13,11 @@ let package = Package(
             name: "Setup",
             targets: ["Setup"]),
     ],
-    dependencies: [
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0")
-    ],
+    dependencies: [],
     targets: [
         .target(
             name: "Setup",
-            dependencies: [
-                "Logging"
-            ]),
+            dependencies: []),
         .testTarget(
             name: "SetupTests",
             dependencies: []),
