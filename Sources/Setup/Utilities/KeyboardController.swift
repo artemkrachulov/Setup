@@ -12,8 +12,10 @@ public protocol KeyboardControllerDelegate: AnyObject {
 
 	/**
 	 The keyboard has shown up. Showing in has finished.
+	
+	 - parameter keyboardSize: The keyboard's size.
 	 */
-	func keyboardShown()
+	func keyboardShown(keyboardSize: CGSize)
 
 	/**
 	 The keyboard currently hides by moving out of view.
@@ -73,7 +75,7 @@ public final class KeyboardController {
 		UIView.animate(withDuration: animationDuration, delay: 0, options: animationCurveOptions, animations: {
 			delegate.keyboardShows(keyboardSize: keyboardSize)
 		}, completion: { _ in
-			delegate.keyboardShown()
+			delegate.keyboardShown(keyboardSize: keyboardSize)
 		})
 	}
 
