@@ -20,13 +20,17 @@ public protocol KeyboardControllerDelegate: AnyObject {
 	/**
 	 The keyboard currently hides by moving out of view.
 	 This method is called in a `UIView.animate` block and thus animates any view changes accordingly to the keyboard.
+	
+	 - parameter keyboardSize: The keyboard's size.
 	 */
-	func keyboardHides()
+	func keyboardHides(keyboardSize: CGSize)
 
 	/**
 	 The keyboard has hidden. Hiding has finished.
+	
+	 - parameter keyboardSize: The keyboard's size.
 	 */
-	func keyboardHidden()
+	func keyboardHidden(keyboardSize: CGSize)
 }
 
 /**
@@ -86,17 +90,24 @@ public final class KeyboardController {
 	private lazy var keyboardHideBlock: (Notification) -> Void = { [weak self] notification in
 		guard let delegate = self?.delegate else { return }
 		guard let notificationInfo = notification.userInfo,
+			let keyboard = (notificationInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
 			let animationDuration = (notificationInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {
 			return
+		}
+		
+		var keyboardSize = keyboard.size
+		if #available(iOS 11.0, *) {
+			let bottomInset = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0.0
+			keyboardSize.height -= bottomInset
 		}
 
 		// Reduce text view's frame to fit the keyboard.
 		// UIKeyboardAnimationCurveUserInfoKey doesn't return with 7 a valid curve so we use as a workaround a hard coded.
 		let animationCurveOptions = UIView.AnimationOptions.curveEaseOut
 		UIView.animate(withDuration: animationDuration, delay: 0, options: animationCurveOptions, animations: {
-			delegate.keyboardHides()
+			delegate.keyboardHides(keyboardSize: keyboardSize)
 		}, completion: { _ in
-			delegate.keyboardHidden()
+			delegate.keyboardHidden(keyboardSize: keyboardSize)
 		})
 	}
 }
